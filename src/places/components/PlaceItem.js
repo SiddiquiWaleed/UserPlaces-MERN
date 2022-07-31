@@ -2,11 +2,13 @@ import React from 'react';
 import './PlaceItem.css';
 import Card from '../../shared/components/UIElements/Card';
 import Button from '../../shared/components/FormElements/Button';
-import {useState} from 'react';
+import {useState, useContext} from 'react';
 import Modal from '../../shared/components/UIElements/Modal';
+import {AuthContext} from '../../shared/context/auth-context';
 
 const PlaceItem = (props) => {
 	const [showModal, setShowModal] = useState(false);
+	const [showDeleteModal, setShowDeleteModal] = useState(false);
 
 	const showModalHandler = () => {
 		setShowModal(true);
@@ -15,6 +17,20 @@ const PlaceItem = (props) => {
 	const hideModalHandler = () => {
 		setShowModal(false);
 	}
+
+	const showDeleteModalHandler = () => {
+		setShowDeleteModal(true);
+	}
+
+	const hideDeleteModalHandler = () => {
+		setShowDeleteModal(false);
+	}
+
+	const confirmDeleteHandler = (id) => {
+		setShowDeleteModal(false);
+	}
+
+	const auth = useContext(AuthContext);
 
 	return (
 		<div className='place-item'>
@@ -34,8 +50,12 @@ const PlaceItem = (props) => {
 					>
 						View Place on Map
 					</Button>
-					<Button to={`/places/${props.id}`}>Edit Place</Button>
-					<Button danger>Delete Place</Button>
+					{ auth.isLoggedIn && (
+						<Button to={`/places/${props.id}`}>Edit Place</Button>
+					)}
+					{ auth.isLoggedIn && (
+						<Button danger onClick={showDeleteModalHandler}>Delete Place</Button>
+					)}
 				</div>
 			</Card>
 			{ showModal && 
@@ -51,6 +71,23 @@ const PlaceItem = (props) => {
 					<h2>A Map!</h2>
 				</div>
 				</Modal> 
+			}
+			{ showDeleteModal &&
+				<Modal
+					header="Are you sure?"
+					contentClass="place-item__modal-content" 
+					footerClass="place-item__modal-actions" 
+					footer={
+						<>
+							<Button danger onClick={confirmDeleteHandler}>DELETE</Button>
+							<Button onClick={hideDeleteModalHandler}>CLOSE</Button>
+						</>
+					}
+					show={showDeleteModalHandler} 
+					onCancel= {hideDeleteModalHandler}
+				>
+					<p>Do you want to delete this place?</p>
+				</Modal>
 			}
 		</div>
 	)
